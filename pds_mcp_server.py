@@ -38,7 +38,7 @@ mcp = FastMCP("pds_mcp")
 # Configuration from environment
 # ---------------------------------------------------------------------------
 
-API_BASE_URL    = os.getenv("PDS_BASE_URL", "https://pdsllc-dt1.pegacloud.io/prweb/api/v1").rstrip("/")
+API_BASE_URL    = os.getenv("PDS_BASE_URL", "https://pdsllc-dt1.pegacloud.io/prweb").rstrip("/") + "/api/v1"
 _PDS_USERNAME   = os.getenv("PDS_USERNAME", "")
 _PDS_PASSWORD   = os.getenv("PDS_PASSWORD", "")
 REQUEST_TIMEOUT = 30.0
