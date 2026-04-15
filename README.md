@@ -1,4 +1,4 @@
-# PDS Support MCP Server
+# Staff-360 MCP Server
 
 Exposes Pega data page and case endpoints as MCP tools so Claude can query
 Workday transactions, MOS cases, staff update audits, and case details directly
@@ -29,23 +29,23 @@ If this is your first time setup:
 
 ```bash
 git clone https://github.com/alamaticz/Staff-360.git
-cd "PDS Support"
+cd "Staff-360"
 pip install mcp httpx pydantic
 ```
 
 If you already have this repo locally:
 
 ```bash
-cd "PDS Support"
+cd "Staff-360"
 git pull origin main
 pip install mcp httpx pydantic
 ```
 
 After install, note the full absolute path to `pds_mcp_server.py` -- you will use it in Claude Desktop config.
 
-Windows example: `C:\Users\YourName\OneDrive\Desktop\Projects\PDS Support\pds_mcp_server.py`
+Windows example: `C:\Users\YourName\OneDrive\Desktop\Projects\Staff-360\pds_mcp_server.py`
 
-macOS / Linux example: `/Users/yourname/Projects/PDS Support/pds_mcp_server.py`
+macOS / Linux example: `/Users/yourname/Projects/Staff-360/pds_mcp_server.py`
 
 ### Step 3 -- Edit Claude Desktop Config
 
@@ -67,7 +67,7 @@ Windows:
   "mcpServers": {
     "pds-support": {
       "command": "py",
-      "args": ["C:\\Users\\YourName\\OneDrive\\Desktop\\Projects\\PDS Support\\pds_mcp_server.py"]
+      "args": ["C:\\Users\\YourName\\OneDrive\\Desktop\\Projects\\Staff-360\\pds_mcp_server.py"]
     }
   }
 }
@@ -80,7 +80,7 @@ macOS / Linux:
   "mcpServers": {
     "pds-support": {
       "command": "python3",
-      "args": ["/Users/yourname/Projects/PDS Support/pds_mcp_server.py"]
+      "args": ["/Users/yourname/Projects/Staff-360/pds_mcp_server.py"]
     }
   }
 }
