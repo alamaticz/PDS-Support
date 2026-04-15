@@ -8,10 +8,12 @@ from the PDS Pega instance.
 
 | Tool | API Called | Purpose |
 |------|-----------|---------|
-| `pds_get_workday_transactions` | `D_TMPCasesForClockID` | List HR life-event / Workday transactions by Clock ID |
-| `pds_get_case` | `/cases/{case_id}` | Fetch full case details by case ID |
-| `pds_get_mos_cases` | `D_MOSCasesForClockID` | List MOS cases by Clock ID |
-| `pds_get_staff_update_audit` | `D_FetchStaffUpdateAuditForClockId` | Fetch staff update audit records by Clock ID |
+| `pds_get_workday_transactions` | `D_TMPCasesForClockID` | Fetches all Workday / HR life-event transaction cases (`PDS-HRLifeImp-Work`) for an employee by Clock ID; use to see hire, transfer, or other Workday-triggered events |
+| `pds_get_case` | `/cases/{case_id}` | Fetches full details of a single Pega case by case ID (for example, `TE-11677`), including status, content, and assignments |
+| `pds_get_mos_cases` | `D_MOSCasesForClockID` | Fetches all MOS (Manager On-boarding/Staffing) cases for an employee by Clock ID, including business process, location proposed, and job code details |
+| `pds_get_staff_update_audit` | `D_FetchStaffUpdateAuditForClockId` | Fetches all staff update audit records for an employee by Clock ID, including approved staff changes such as roles, location, website visibility, approver, and job code history |
+| `pds_get_staff_bio` | `D_StaffBio` | Fetches the staff bio/profile record for a specific staff case ID (`pyID`, for example, `SB-1012`), including name, job title, department, bio text, OWL/Yext roles, and directory settings |
+| `pds_get_bio_info_by_clock_id` | `D_FetchBioInfo_Staff` | Fetches staff bio/profile info by Clock ID (not bio case ID), useful for profile, website/print directory status, and role information |
 
 ## Running in Claude Desktop
 
@@ -114,11 +116,15 @@ In Claude, run:
 1. `pds_get_workday_transactions` -- find Workday/HR transactions for an employee
 2. `pds_get_mos_cases` -- fetch MOS case history for the same Clock ID
 3. `pds_get_staff_update_audit` -- inspect approved staff change records
-4. `pds_get_case` -- drill into a specific case ID for full details
+4. `pds_get_bio_info_by_clock_id` -- check staff profile and directory status by Clock ID
+5. `pds_get_staff_bio` -- drill into a specific staff bio case (e.g., `SB-1012`)
+6. `pds_get_case` -- drill into a specific case ID for full details
 
 ## Example Prompts
 
 - "Show all workday transactions for clock ID 17091"
 - "Get MOS cases for clock ID 17091"
 - "Fetch staff update audits for clock ID 17091"
+- "Get bio info for clock ID 674544"
+- "Get staff bio for case SB-1012"
 - "Get details for case TE-11677"
