@@ -47,21 +47,7 @@ Windows example: `C:\Users\YourName\OneDrive\Desktop\Projects\Staff-360\pds_mcp_
 
 macOS / Linux example: `/Users/yourname/Projects/Staff-360/pds_mcp_server.py`
 
-### Step 3 -- Configure Credentials
-
-Create a `.env` file in the project root (next to `pds_mcp_server.py`) with your Pega connection details:
-
-```env
-PDS_BASE_URL=https://your-server.pegacloud.io/prweb/api/v1
-PDS_USERNAME=your_operator_id
-PDS_PASSWORD=your_password
-```
-
-The server reads these at startup via `python-dotenv`. Never commit this file to source control -- it is already listed in `.gitignore`.
-
-Alternatively, you can pass the same values directly through the Claude Desktop config `env` block (see Step 4).
-
-### Step 4 -- Edit Claude Desktop Config
+### Step 3 -- Edit Claude Desktop Config
 
 Open the Claude Desktop configuration file in a text editor:
 
@@ -114,11 +100,11 @@ Note: If you already have other MCP servers in the config, add the `pds-support`
 
 If you use a virtual environment, set `command` to your venv Python executable instead of `py` / `python3`.
 
-### Step 5 -- Restart Claude Desktop
+### Step 4 -- Restart Claude Desktop
 
 Fully quit and reopen Claude Desktop. The PDS MCP tools will appear in the tools panel.
 
-### Step 6 -- Quick Verification
+### Step 5 -- Quick Verification
 
 In Claude, run:
 
