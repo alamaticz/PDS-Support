@@ -3,44 +3,78 @@
 MCP Server for PDS Support - Pega DX API Integration.
 
 Provides tools to query workday transactions, MOS cases, staff update
-audit records, and HR life event import cases from the PDS Pega instance.
+audit records, HR life event import cases, and staff bio data from the
+PDS Pega instance.
+
+Tools:
+  pds_get_workday_transactions     — All Workday / HR life-event cases for a Clock ID
+  pds_get_case                     — Full details of a single Pega case by case ID
+  pds_get_mos_cases                — All MOS cases for a Clock ID
+  pds_get_staff_update_audit       — Staff update audit records for a Clock ID
+  pds_get_staff_bio                — Staff bio/profile by staff case ID (pyID)
+  pds_get_bio_info_by_clock_id     — Staff bio info by Clock ID
 """
 
+import os
 import json
-import base64
-from typing import Optional, List, Any
+import sys
+from typing import Optional, List
 from enum import Enum
+
 import httpx
 from pydantic import BaseModel, Field, ConfigDict
 from mcp.server.fastmcp import FastMCP
+from dotenv import load_dotenv
 
-# ── Server ──────────────────────────────────────────────────────────────────
+load_dotenv()
+
+# ---------------------------------------------------------------------------
+# Server init
+# ---------------------------------------------------------------------------
+
 mcp = FastMCP("pds_mcp")
 
-# ── Constants ────────────────────────────────────────────────────────────────
-API_BASE_URL = "https://pdsllc-dt1.pegacloud.io/prweb/api/v1"
-_USERNAME = "PDSSupport360"
-_PASSWORD = "rules@123"
+# ---------------------------------------------------------------------------
+# Configuration from environment
+# ---------------------------------------------------------------------------
 
-# Pre-build the Basic Auth header once at import time
-_AUTH_HEADER = "Basic " + base64.b64encode(f"{_USERNAME}:{_PASSWORD}".encode()).decode()
+API_BASE_URL    = os.getenv("PDS_BASE_URL", "https://pdsllc-dt1.pegacloud.io/prweb/api/v1").rstrip("/")
+_PDS_USERNAME   = os.getenv("PDS_USERNAME", "")
+_PDS_PASSWORD   = os.getenv("PDS_PASSWORD", "")
+REQUEST_TIMEOUT = 30.0
 
 
-# ── Enums ────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Enums
+# ---------------------------------------------------------------------------
 class ResponseFormat(str, Enum):
     """Output format for tool responses."""
     MARKDOWN = "markdown"
     JSON = "json"
 
 
-# ── Shared utilities ─────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Shared utilities
+# ---------------------------------------------------------------------------
+
+def _auth() -> tuple[str, str]:
+    """Return (username, password) from env, raising clearly if not configured."""
+    if not _PDS_USERNAME or not _PDS_PASSWORD:
+        raise ValueError(
+            "PDS credentials not configured. "
+            "Set PDS_USERNAME and PDS_PASSWORD in your .env file."
+        )
+    return (_PDS_USERNAME, _PDS_PASSWORD)
+
+
 async def _get(endpoint: str, params: Optional[dict] = None) -> dict:
     """Make an authenticated GET request to the Pega DX API."""
-    async with httpx.AsyncClient(timeout=30.0) as client:
+    async with httpx.AsyncClient(verify=False, timeout=REQUEST_TIMEOUT) as client:
         response = await client.get(
             f"{API_BASE_URL}{endpoint}",
             params=params,
-            headers={"Authorization": _AUTH_HEADER, "Accept": "application/json"},
+            auth=_auth(),
+            headers={"Accept": "application/json"},
         )
         response.raise_for_status()
         return response.json()
@@ -51,18 +85,27 @@ def _handle_error(e: Exception) -> str:
     if isinstance(e, httpx.HTTPStatusError):
         code = e.response.status_code
         if code == 401:
-            return "Error: Authentication failed. Check username/password."
+            return "Error 401: Authentication failed. Check PDS_USERNAME / PDS_PASSWORD in your .env file."
         if code == 403:
-            return "Error: Permission denied. Your account lacks access to this resource."
+            return "Error 403: Access denied. The configured user lacks permission for this resource."
         if code == 404:
-            return "Error: Resource not found. Verify the endpoint or ID."
+            return "Error 404: Resource not found. Verify the endpoint or ID."
         if code == 429:
-            return "Error: Rate limit exceeded. Wait a moment before retrying."
-        return f"Error: API returned HTTP {code}."
+            return "Error 429: Rate limit exceeded. Wait a moment before retrying."
+        if code == 503:
+            return "Error 503: Pega server unavailable. The instance may be starting up or under maintenance."
+        try:
+            body = e.response.json()
+            msg  = body.get("errors", [{}])[0].get("message", e.response.text[:200])
+        except Exception:
+            msg = e.response.text[:200]
+        return f"Error {code}: {msg}"
     if isinstance(e, httpx.TimeoutException):
-        return "Error: Request timed out. The Pega server may be slow or unreachable."
+        return f"Error: Request timed out after {REQUEST_TIMEOUT}s. The Pega server may be slow or unreachable."
     if isinstance(e, httpx.ConnectError):
-        return "Error: Could not connect to the Pega server. Check network access."
+        return "Error: Could not connect to the Pega server. Check network access and PDS_BASE_URL."
+    if isinstance(e, ValueError):
+        return f"Configuration error: {e}"
     return f"Error: {type(e).__name__}: {e}"
 
 
@@ -146,7 +189,9 @@ def _fmt_audit(t: dict) -> dict:
     }
 
 
-# ── Input models ─────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Input models
+# ---------------------------------------------------------------------------
 class GetWorkdayTransactionsInput(BaseModel):
     """Input model for fetching workday transactions by Clock ID."""
     model_config = ConfigDict(str_strip_whitespace=True, validate_assignment=True, extra="forbid")
@@ -243,7 +288,9 @@ class GetBioInfoByClockIDInput(BaseModel):
     )
 
 
-# ── Tools ────────────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Tools
+# ---------------------------------------------------------------------------
 @mcp.tool(
     name="pds_get_workday_transactions",
     annotations={
@@ -873,6 +920,8 @@ async def pds_get_bio_info_by_clock_id(params: GetBioInfoByClockIDInput) -> str:
         return _handle_error(e)
 
 
-# ── Entry point ───────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
 if __name__ == "__main__":
     mcp.run()
