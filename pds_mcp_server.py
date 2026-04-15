@@ -799,7 +799,7 @@ async def pds_get_staff_bio(params: GetStaffBioInput) -> str:
 async def pds_get_bio_info_by_clock_id(params: GetBioInfoByClockIDInput) -> str:
     """Retrieve staff bio information for a given employee Clock ID.
 
-    Calls the Pega data page D_FetchBioInfo_Staff with the provided ClockID
+    Calls the Pega data page D_FetchBioInfoBasedOnClockId with the provided ClockID
     and returns all matching staff bio records, including profile details,
     directory settings, and role information for the employee.
 
@@ -850,7 +850,7 @@ async def pds_get_bio_info_by_clock_id(params: GetBioInfoByClockIDInput) -> str:
     """
     try:
         data = await _get(
-            "/data/D_FetchBioInfo_Staff",
+            "/data/D_FetchBioInfoBasedOnClockId",
             params={"ClockID": params.clock_id},
         )
 

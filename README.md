@@ -13,7 +13,7 @@ from the PDS Pega instance.
 | `pds_get_mos_cases` | `D_MOSCasesForClockID` | Fetches all MOS (Manager On-boarding/Staffing) cases for an employee by Clock ID, including business process, location proposed, and job code details |
 | `pds_get_staff_update_audit` | `D_FetchStaffUpdateAuditForClockId` | Fetches all staff update audit records for an employee by Clock ID, including approved staff changes such as roles, location, website visibility, approver, and job code history |
 | `pds_get_staff_bio` | `D_StaffBio` | Fetches the staff bio/profile record for a specific staff case ID (`pyID`, for example, `SB-1012`), including name, job title, department, bio text, OWL/Yext roles, and directory settings |
-| `pds_get_bio_info_by_clock_id` | `D_FetchBioInfo_Staff` | Fetches staff bio/profile info by Clock ID (not bio case ID), useful for profile, website/print directory status, and role information |
+| `pds_get_bio_info_by_clock_id` | `D_FetchBioInfoBasedOnClockId` | Fetches staff bio/profile info by Clock ID (not bio case ID), useful for profile, website/print directory status, and role information |
 
 ## Running in Claude Desktop
 
